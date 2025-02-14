@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Story lapte vegetal</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/mapbox/assembly/publisher-staging/src/svgs/mapbox.svg">
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.js"></script>
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/intersection-observer@0.12.0/intersection-observer.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
+  <!-- Include D3.js for the product charts -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+    a, a:hover, a:visited {
+      color: #474747;
+    }
+    #map {
+      top: 0;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+    }
+    #mapInset {
+      bottom: 50px;
+      right: 30px;
+      height: 180px;
+      width: 250px;
+      max-width: 100%;
+      position: fixed;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+      pointer-events: none;
+    }
+    #mapInset .mapboxgl-ctrl-bottom-left {
+      display: none;
+    }
+    @media (max-width: 500px) {
+      #mapInset {
+        display: none;
+      }
+    }
+    #header {
+      margin: auto;
+      width: 100%;
+      position: relative;
+      z-index: 5;
+      background-color: transparent;
+    }
+    #header h1, #header h2, #header p {
+      margin: 0;
+      padding: 1vh 4vw;
+      text-align: center; 
+    }
+    #header h1 {
+      padding-top: 10vh;
+    }
+    #footer {
+      width: 100%;
+      min-height: 5vh;
+      padding-top: 2vh;
+      padding-bottom: 2vh;
+      text-align: center;
+      line-height: 25px;
+      font-size: 13px;
+      position: relative;
+      z-index: 5;
+    }
+    #features {
+      padding-top: 10vh;
+      padding-bottom: 10vh;
+    }
+    /* Removed fading opacity rules for chapters */
+    .step {
+      padding-bottom: 50vh;
+    }
+    .step.active {
+    }
+    .centered {
+      width: 50vw;
+      margin: 0 auto;
+      
+    }
+    .lefty {
+      width: 33vw;
+      margin-left: 5vw;
+    }
+    .righty {
+      width: 33vw;
+      margin-left: 62vw;
+    }
+    .fully {
+      width: 100%;
+      margin: auto;
+    }
+    .light {
+      color: #295e68;
+      background-color: #BCDBE7;
+      border-radius: 10px;
+    }
+    .dark {
+      color: #3a2a00;
+      background-color: transparent;
+    }
+    .step div {
+      padding: 0px 10px;
+      line-height: 25px;
+      font-size: 1rem;
+      font-weight: 400;
+    }
+    .step img {
+      width: 100%;
+    }
+    @media (max-width: 750px) {
+      .centered, .lefty, .righty, .fully {
+        width: 90vw;
+        margin: 0 auto;
+      }
+    }
+    #story {
+      position: relative;
+      z-index: 100;
+      color: rgba(255, 255, 255, 0.514);
+      padding: 20px;
+    }
+    #imageOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #B1D5E2;
+      display: flex;
+      justify-content: center !important;
+      align-items: center !important;
+      z-index: 10;
+    }
+    #fullscreenImage {
+      max-width: 100%;
+      max-height: 100vh;
+      object-fit: contain;
+    }
+    .title {
+      font-size: 29px;
+    }
+    .highlight {
+      color: #B00000;
+    }
+    @keyframes colorFade {
+      from { color: #000000; }
+      to { color: #B00000; }
+    }
+    .mapboxgl-canvas-container.mapboxgl-touch-zoom-rotate.mapboxgl-touch-drag-pan,
+    .mapboxgl-canvas-container.mapboxgl-touch-zoom-rotate.mapboxgl-touch-drag-pan .mapboxgl-canvas {
+      touch-action: unset;
+    }
+    .horizontal-scroll {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .horizontal-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .horizontal-scroll > div {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      width: 100vw;
+      height: 100vh;
+    }
+    #milkContainer {
+      position: fixed;
+      right: 20px;
+      top: 20px;
+      width: 80px;
+      height: 100vh;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    #milkBottle {
+      width: 80px;
+      position: relative;
+      top: 20px;
+      z-index: 2;
+      transform: scale(1);
+      transition: transform 0.5s ease-in-out, top 0.5s ease-in-out;
+    }
+    .milkBottleScrolled {
+      transform: scale(1.5) rotate(180deg);
+      top: 50%;
+    }
+    #milkLine {
+      position: relative;
+      right: 15px;
+      width: 15px;
+      background: linear-gradient(to bottom, #ffffff, #f0f0f0, #ffffff);
+      border-radius: 50px;
+      overflow: hidden;
+      height: 0;
+      z-index: 1;
+    }
+    #milkLine::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 50%, #ffffff 30%, #f5f5f5 70%);
+      animation: wave 3s infinite linear;
+    }
+    @keyframes wave {
+      0% { transform: translate(-25%, 0); }
+      100% { transform: translate(-25%, -100%); }
+    }
+    /* ======= Product Charts Styles ======= */
+    /* Container for all charts */
+    #productCharts {
+      background: #B1D5E2;
+      padding: 10px 20px;
+      border-radius: 10px;
+      margin: 10px auto;
+      max-width: 800px;
+      color: #333;
+    }
+    /* Override any fading or padding on the charts chapter */
+    #capCharts {
+      opacity: 1 !important;
+      padding-bottom: 0 !important;
+      background: #fff;
+    }
+    /* Buttons for filtering by milk type */
+    #productCharts #buttons {
+      margin-bottom: 0px;
+    }
+    .filter-btn {
+      padding: 6px 12px;
+      margin-right: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    .filter-btn.active {
+      background: #14526652;
+      color: #000000;
+      border-color: #6996A7;
+    }
+    /* Sliders */
+    #productCharts #sliders {
+      margin-bottom: 10px;
+    }
+    .slider-container {
+      margin-bottom: 5px;
+    }
+    .slider-label {
+      margin-right: 5px;
+      font-weight: bold;
+    }
+    input[type=range] {
+      vertical-align: middle;
+    }
+    .slider-value {
+      margin-left: 5px;
+      font-weight: bold;
+    }
+    /* Chart container for individual charts */
+    .chart-container {
+      margin: 10px;
+      display: inline-block;
+      vertical-align: top;
+      z-index: 9999;
+    }
+    .axis-line {
+      stroke: #aaa;
+      stroke-dasharray: 4 2;
+    }
+    .data-line {
+      fill: none;
+      stroke-width: 0.5;
+    }
+    .data-point {
+      stroke-width: 1;
+      cursor: pointer;
+    }
+    .axis-label {
+      font-size: 12px;
+      fill: #333;
+      text-anchor: middle;
+    }
+    /* Extra axis min/max labels */
+    .axis-min, .axis-max {
+      font-size: 10px;
+      fill: #333;
+    }
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 5px;
+      border-radius: 3px;
+      font-size: 12px;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    /* ======= Cow GIF Container ======= */
+    #cowContainer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      z-index: 100;
+    }
+    #cowContainer img {
+      width: 100vw;
+      height: auto;
+    }
+    
+
+  </style>
+</head>
+<body>
+  <!-- Map and Inset -->
+  <div id="map"></div>
+  <div id="imageOverlay">
+    <img id="fullscreenImage" src="blank.png">
+  </div>
+  <div id="mapInset"></div>
+
+  <!-- Story container -->
+  <div id="story"></div>
+  <div id="milkContainer">
+    <img id="milkBottle" src="milk.png" alt="Milk Bottle">
+    <div id="milkLine"></div>
+    <div id="horizontalScrollSection" class="horizontal-scroll">
+      <div id="horizontalContent"></div>
+    </div>
+  </div>
+
+  <!-- Include your config file for scrollytelling -->
+  <script src="./config.js"></script>
+  <script>
+    var horizontalScrollChapters = new Set();
+    config.chapters.forEach(chapter => {
+      if (chapter.horizontalScroll) {
+        horizontalScrollChapters.add(chapter.id);
+      }
+    });
+    var initLoad = true;
+    var layerTypes = {
+      'fill': ['fill-opacity'],
+      'line': ['line-opacity'],
+      'circle': ['circle-opacity', 'circle-stroke-opacity'],
+      'symbol': ['icon-opacity', 'text-opacity'],
+      'raster': ['raster-opacity'],
+      'fill-extrusion': ['fill-extrusion-opacity'],
+      'heatmap': ['heatmap-opacity']
+    };
+    var alignments = {
+      'left': 'lefty',
+      'center': 'centered',
+      'right': 'righty',
+      'full': 'fully'
+    };
+    function getLayerPaintType(layer) {
+      var layerType = map.getLayer(layer).type;
+      return layerTypes[layerType];
+    }
+    function setLayerOpacity(layer) {
+      var paintProps = getLayerPaintType(layer.layer);
+      paintProps.forEach(function(prop) {
+        var options = {};
+        if (layer.duration) {
+          var transitionProp = prop + "-transition";
+          options = { "duration": layer.duration };
+          map.setPaintProperty(layer.layer, transitionProp, options);
+        }
+        map.setPaintProperty(layer.layer, prop, layer.opacity, options);
+      });
+    }
+    var story = document.getElementById('story');
+    var features = document.createElement('div');
+    features.setAttribute('id', 'features');
+    var header = document.createElement('div');
+    if (config.title) {
+      var titleText = document.createElement('h1');
+      titleText.innerHTML = config.title;
+      header.appendChild(titleText);
+    }
+    if (config.subtitle) {
+      var subtitleText = document.createElement('h2');
+      subtitleText.innerHTML = config.subtitle;
+      header.appendChild(subtitleText);
+    }
+    if (config.byline) {
+      var bylineText = document.createElement('p');
+      bylineText.innerHTML = config.byline;
+      header.appendChild(bylineText);
+    }
+    if (header.innerText.length > 0) {
+      header.classList.add(config.theme);
+      header.setAttribute('id', 'header');
+      story.appendChild(header);
+    }
+    // Create chapters from config
+    config.chapters.forEach((record, idx) => {
+      var container = document.createElement('div');
+      container.setAttribute('id', record.id);
+      container.classList.add('step');
+      if (idx === 0) {
+        container.classList.add('active');
+      }
+      var chapter = document.createElement('div');
+      if (record.title) {
+        var title = document.createElement('h3');
+        title.innerHTML = record.title;
+        chapter.appendChild(title);
+      }
+      if (record.image) {
+        var image = new Image();
+        image.src = record.image;
+        chapter.appendChild(image);
+      }
+      if (record.description) {
+        var storyP = document.createElement('p');
+        storyP.innerHTML = record.description;
+        chapter.appendChild(storyP);
+      }
+      chapter.classList.add(config.theme);
+      container.appendChild(chapter);
+      container.classList.add(alignments[record.alignment] || 'centered');
+      if (record.hidden) {
+        container.classList.add('hidden');
+      }
+      features.appendChild(container);
+    });
+    // Append a new chapter for the Product Charts after 'cap4'
+    var chartsSection = document.createElement('div');
+    chartsSection.setAttribute('id', 'capCharts');
+    chartsSection.classList.add('step');
+    chartsSection.innerHTML = `
+      <div id="productCharts">
+        <h2>Compoziția nutrițională e principalelor tipuri de lapte vegetal de pe piață</h2>
+        <div id="buttons">
+          <button class="filter-btn" data-category="toate">Toate</button>
+          <button class="filter-btn" data-category="ovaz">Ovaz</button>
+          <button class="filter-btn" data-category="soia">Soia</button>
+          <button class="filter-btn" data-category="orez">Orez</button>
+          <button class="filter-btn" data-category="cocos">Cocos</button>
+          <button class="filter-btn" data-category="migdale">Migdale</button>
+        </div>
+        <div id="sliders">
+          <div class="slider-container">
+            <span class="slider-label">Proteine:</span>
+            <input type="range" id="slider-proteine" min="0" max="7" step="0.1" value="0">
+            <span class="slider-value" id="value-proteine">0</span>
+          </div>
+          <div class="slider-container">
+            <span class="slider-label">Carbohidrati:</span>
+            <input type="range" id="slider-carbo" min="0" max="20" step="0.1" value="0">
+            <span class="slider-value" id="value-carbo">0</span>
+          </div>
+          <div class="slider-container">
+            <span class="slider-label">Grasimi:</span>
+            <input type="range" id="slider-grasimi" min="0" max="20" step="0.1" value="0">
+            <span class="slider-value" id="value-grasimi">0</span>
+          </div>
+        </div>
+        <div id="charts"></div>
+        <div id="tooltip" class="tooltip"></div>
+      </div>
+    `;
+    features.appendChild(chartsSection);
+    story.appendChild(features);
+    var footer = document.createElement('div');
+    if (config.footer) {
+      var footerText = document.createElement('p');
+      footerText.innerHTML = config.footer;
+      footer.appendChild(footerText);
+    }
+    if (footer.innerText.length > 0) {
+      footer.classList.add(config.theme);
+      footer.setAttribute('id', 'footer');
+      story.appendChild(footer);
+    }
+    mapboxgl.accessToken = config.accessToken;
+    const transformRequest = (url) => {
+      const hasQuery = url.indexOf("?") !== -1;
+      const suffix = hasQuery ? "&pluginName=scrollytellingV2" : "?pluginName=scrollytellingV2";
+      return { url: url + suffix };
+    };
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: config.style,
+      center: config.chapters[0].location.center,
+      zoom: config.chapters[0].location.zoom,
+      bearing: config.chapters[0].location.bearing,
+      pitch: config.chapters[0].location.pitch,
+      interactive: false,
+      transformRequest: transformRequest,
+      projection: config.projection
+    });
+    if (config.inset) {
+      var insetMap = new mapboxgl.Map({
+        container: 'mapInset',
+        style: 'mapbox://styles/ed1990/clshd5fko001d01qw5qk66k79',
+        center: config.chapters[0].location.center,
+        zoom: 3,
+        hash: false,
+        interactive: false,
+        attributionControl: false
+      });
+    }
+    if (config.showMarkers) {
+      var marker = new mapboxgl.Marker({ color: config.markerColor });
+      marker.setLngLat(config.chapters[0].location.center).addTo(map);
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const milkLine = document.getElementById('milkLine');
+      const totalScrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      function updateMilkLine() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const progress = (scrollTop / totalScrollHeight) * 100;
+        milkLine.style.height = `${progress}vh`;
+      }
+      window.addEventListener('scroll', updateMilkLine);
+    });
+    document.addEventListener('scroll', () => {
+      const milkBottle = document.getElementById('milkBottle');
+      const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+      if (scrollPosition > 50) {
+        milkBottle.classList.add('milkBottleScrolled');
+      } else {
+        milkBottle.classList.remove('milkBottleScrolled');
+      }
+    });
+    var scroller = scrollama();
+    map.on("load", function() {
+      if (config.use3dTerrain) {
+        map.addSource('mapbox-dem', {
+          'type': 'raster-dem',
+          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+          'tileSize': 512,
+          'maxzoom': 14
+        });
+        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+        map.addLayer({
+          'id': 'sky',
+          'type': 'sky',
+          'paint': {
+            'sky-type': 'atmosphere',
+            'sky-atmosphere-sun': [0.0, 0.0],
+            'sky-atmosphere-sun-intensity': 15
+          }
+        });
+      }
+      if (config.inset) {
+        map.on('move', getInsetBounds);
+      }
+      scroller.setup({
+        step: '.step',
+        offset: 0.5,
+        progress: true
+      });
+      scroller.onStepEnter(async response => {
+        console.log('Entering chapter:', response.element.id);
+        var current_chapter = config.chapters.findIndex(chap => chap.id === response.element.id);
+        var chapter = config.chapters[current_chapter];
+        if (horizontalScrollChapters.has(chapter.id)) {
+          document.getElementById('horizontalScrollSection').style.display = 'flex';
+          document.getElementById('horizontalContent').innerHTML = '<img src="' + chapter.overlayImage + '" style="width: 200%; height: 100%;">';
+          document.getElementById('map').style.display = 'none';
+        } else {
+          document.getElementById('horizontalScrollSection').style.display = 'none';
+          document.getElementById('map').style.display = 'block';
+        }
+        response.element.classList.add('active');
+        map[chapter.mapAnimation || 'flyTo'](chapter.location);
+        if (config.showMarkers) marker.setLngLat(chapter.location.center);
+        if (chapter.onChapterEnter.length > 0) {
+          chapter.onChapterEnter.forEach(layer => {
+            setLayerOpacity(layer);
+          });
+        }
+        if (chapter.callback && typeof window[chapter.callback] === 'function') {
+          window[chapter.callback]();
+        }
+        if (chapter.rotateAnimation) {
+          map.once('moveend', () => {
+            const rotateNumber = map.getBearing();
+            map.rotateTo(rotateNumber + 180, { duration: 30000, easing: t => t });
+          });
+        }
+        if (config.auto) {
+          var next_chapter = (current_chapter + 1) % config.chapters.length;
+          map.once('moveend', () => {
+            document.querySelectorAll('[data-scrollama-index="' + next_chapter.toString() + '"]')[0].scrollIntoView();
+          });
+        }
+        if (chapter.overlayImage && !horizontalScrollChapters.has(chapter.id)) {
+          fullscreenImage.src = chapter.overlayImage;
+          imageOverlayDiv.style.display = 'flex';
+        } else {
+          imageOverlayDiv.style.display = 'none';
+        }
+      });
+    });
+    function getInsetBounds() {
+      let bounds = map.getBounds();
+      let boundsJson = {
+        "type": "FeatureCollection",
+        "features": [{
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [bounds._sw.lng, bounds._sw.lat],
+              [bounds._ne.lng, bounds._sw.lat],
+              [bounds._ne.lng, bounds._ne.lat],
+              [bounds._sw.lng, bounds._ne.lat],
+              [bounds._sw.lng, bounds._sw.lat]
+            ]]
+          }
+        }]
+      };
+      if (initLoad) {
+        addInsetLayer(boundsJson);
+        initLoad = false;
+      } else {
+        updateInsetLayer(boundsJson);
+      }
+    }
+    function addInsetLayer(bounds) {
+      insetMap.addSource('boundsSource', {
+        'type': 'geojson',
+        'data': bounds
+      });
+      insetMap.addLayer({
+        'id': 'boundsLayer',
+        'type': 'fill',
+        'source': 'boundsSource',
+        'layout': {},
+        'paint': {
+          'fill-color': '#fff',
+          'fill-opacity': 0.2
+        }
+      });
+      insetMap.addLayer({
+        'id': 'outlineLayer',
+        'type': 'line',
+        'source': 'boundsSource',
+        'layout': {},
+        'paint': {
+          'line-color': '#000',
+          'line-width': 1
+        }
+      });
+    }
+    function updateInsetLayer(bounds) {
+      insetMap.getSource('boundsSource').setData(bounds);
+    }
+    function adjustMapSize() {
+      map.resize();
+    }
+    window.addEventListener('resize', adjustMapSize);
+    adjustMapSize();
+    window.addEventListener('resize', () => {
+      scroller.resize();
+    });
+  </script>
+
+  <!-- ======= Product Charts D3 Code ======= -->
+  <script>
+    // Sample product data (update or expand as needed)
+    const products = [
+  { name: "Lapte de soia Hopla", calorii: 45, proteine: 2.6, carbohidrati: 4, grasimi: 1.4, category: "soia" },
+  { name: "Lapte soia Naturli", calorii: 52, proteine: 3.7, carbohidrati: 4, grasimi: 2.2, category: "soia" },
+  { name: "Lapte de soia dmBio", calorii: 42, proteine: 2.8, carbohidrati: 3.8, grasimi: 1.7, category: "soia" },
+  { name: "Lapte soia Sanitarium", calorii: 65, proteine: 3.4, carbohidrati: 5, grasimi: 3.4, category: "soia" },
+  { name: "Lapte de soia neindulcit", calorii: 26.62, proteine: 3.46, carbohidrati: 1.62, grasimi: 0.7, category: "soia" },
+  { name: "Lapte de soia - Valsoia", calorii: 62, proteine: 3, carbohidrati: 2.5, grasimi: 4.4, category: "soia" },
+  { name: "Lapte de soia Hacendado", calorii: 30, proteine: 3.1, carbohidrati: 0.6, grasimi: 1.7, category: "soia" },
+  { name: "Lapte soia cu cacao myBIO", calorii: 56, proteine: 3, carbohidrati: 6.5, grasimi: 2, category: "soia" },
+  { name: "Lapte din Soia - Alce Nero", calorii: 34, proteine: 3, carbohidrati: 1, grasimi: 1.8, category: "soia" },
+  { name: "Lapte de soia cu ciocolata - Carrefour", calorii: 66, proteine: 3.4, carbohidrati: 8.4, grasimi: 1.9, category: "soia" },
+  { name: "Lapte de soia Mountain Water", calorii: 36, proteine: 3.6, carbohidrati: 1, grasimi: 1.8, category: "soia" },
+  { name: "Lapte soia light Alpro", calorii: 27, proteine: 2.1, carbohidrati: 1.6, grasimi: 1.2, category: "soia" },
+  { name: "Lapte soia natur Delhaize", calorii: 39, proteine: 3, carbohidrati: 2.5, grasimi: 1.7, category: "soia" },
+  { name: "Lapte de soia Barista Joya", calorii: 35, proteine: 3.3, carbohidrati: 0.9, grasimi: 1.9, category: "soia" },
+  { name: "Lapte soia cu cacao Joya", calorii: 56, proteine: 2.6, carbohidrati: 7.3, grasimi: 1.6, category: "soia" },
+  { name: "Lapte de soia Carrefour BIO", calorii: 41, proteine: 3.8, carbohidrati: 1.4, grasimi: 2.1, category: "soia" },
+  { name: "Lapte din soia Soyaccino Sanitarium", calorii: 57, proteine: 3.1, carbohidrati: 7.7, grasimi: 1.5, category: "soia" },
+  { name: "Lapte de soia bio Pascual", calorii: 44, proteine: 3.1, carbohidrati: 4.1, grasimi: 1.7, category: "soia" },
+  { name: "Lapte soia original Alpro", calorii: 38, proteine: 3, carbohidrati: 2.3, grasimi: 1.8, category: "soia" },
+  { name: "Lapte din soia Savia Danone", calorii: 47, proteine: 3.1, carbohidrati: 4.5, grasimi: 1.8, category: "soia" },
+  { name: "Lapte soia cu calciu Alpro", calorii: 55, proteine: 3, carbohidrati: 6.7, grasimi: 1.7, category: "soia" },
+  { name: "Lapte de soia simplu Alpro", calorii: 43, proteine: 3.3, carbohidrati: 2.8, grasimi: 0.3, category: "soia" },
+  { name: "Lapte de soia Biotrend Lidl", calorii: 43, proteine: 4, carbohidrati: 0.9, grasimi: 2.4, category: "soia" },
+  { name: "Lapte din soia simplu Inedit", calorii: 18, proteine: 1.9, carbohidrati: 0, grasimi: 1.1, category: "soia" },
+  { name: "Lapte de soia Sanitarium Lite", calorii: 41, proteine: 3.4, carbohidrati: 4.7, grasimi: 0.9, category: "soia" },
+  { name: "Lapte soia vanilla Alpro", calorii: 57, proteine: 3, carbohidrati: 6.7, grasimi: 1.7, category: "soia" },
+  { name: "Soia drink lapte de soia bio vanilie - Lidl", calorii: 57, proteine: 3.6, carbohidrati: 0, grasimi: 1.9, category: "soia" },
+  { name: "Lapte de soia cu calciu și vitamine Valsoia", calorii: 40, proteine: 3, carbohidrati: 3, grasimi: 1.7, category: "soia" },
+  { name: "Lapte soia calciu lecitina Bionegotio", calorii: 460, proteine: 5.5, carbohidrati: 55, grasimi: 25, category: "soia" },
+  { name: "Lapte de soia cu vanilie bio Provamel", calorii: 60, proteine: 3.8, carbohidrati: 6.2, grasimi: 2.2, category: "soia" },
+  { name: "Lapte soia vanilie Interspar Vital", calorii: 40, proteine: 2.9, carbohidrati: 3.9, grasimi: 1.7, category: "soia" },
+  { name: "Lapte de soia neindulcit Soya Soleil", calorii: 27, proteine: 2.9, carbohidrati: 0.1, grasimi: 1.7, category: "soia" },
+  { name: "Lapte din soia aroma de portocale Inedit", calorii: 36, proteine: 1.7, carbohidrati: 4.1, grasimi: 1.4, category: "soia" },
+  { name: "Lapte de soia cu aroma de vanilie Alpro", calorii: 62, proteine: 3.3, carbohidrati: 7.9, grasimi: 1.8, category: "soia" },
+  { name: "Lapte de soia - Take it Veggie", calorii: 28, proteine: 2, carbohidrati: 2.6, grasimi: 1, category: "soia" },
+  { name: "Lapte de soia - Nature’s Promise Bio", calorii: 39, proteine: 3.6, carbohidrati: 1.3, grasimi: 1.9, category: "soia" },
+  { name: "Lapte soia Central Lechera Asturiana", calorii: 26, proteine: 2.1, carbohidrati: 1.6, grasimi: 1.2, category: "soia" },
+  { name: "Lapte de soia cu aroma vanilie - Muller", calorii: 51, proteine: 3, carbohidrati: 5.9, grasimi: 1.7, category: "soia" },
+  { name: "Lapte de soia fără zahăr - Solosano Todis", calorii: 37, proteine: 3.5, carbohidrati: 0.9, grasimi: 1.9, category: "soia" },
+  { name: "Lapte de soia cu vanilie - My BIO - Penny", calorii: 46, proteine: 3, carbohidrati: 4, grasimi: 2, category: "soia" },
+  { name: "Lapte de soia ALPRO UHT Fara zahar", calorii: 33, proteine: 3.3, carbohidrati: 0, grasimi: 1.8, category: "soia" },
+  { name: "Lapte de soia cu ciocolata Soya Choco Provamel", calorii: 83, proteine: 3.8, carbohidrati: 11.2, grasimi: 2.4, category: "soia" },
+  { name: "Lapte din soia imbunatatit cu calciu si vitamine Alpro", calorii: 39, proteine: 3, carbohidrati: 2.5, grasimi: 1.8, category: "soia" },
+  { name: "Lapte de soia Bio Organic - Milbona (Lidl)", calorii: 44, proteine: 3.6, carbohidrati: 2.7, grasimi: 1.9, category: "soia" },
+  { name: "Lapte de soia - Food for Future (Penny)", calorii: 35, proteine: 3.9, carbohidrati: 1.1, grasimi: 1.6, category: "soia" },
+  { name: "Lapte de soia cu aroma de vanilie Alpro Soya Vanilla", calorii: 57, proteine: 3, carbohidrati: 6.8, grasimi: 1.8, category: "soia" },
+  { name: "Lapte de soia fara gluten si lactoza Ecologica/Bio - Allos", calorii: 52.9, proteine: 3.8, carbohidrati: 3.8, grasimi: 2.5, category: "soia" },
+  { name: "Lapte de ovaz Naturli", calorii: 47, proteine: 0.4, carbohidrati: 8, grasimi: 1.3, category: "ovaz" },
+  { name: "Lapte de ovaz Alpro", calorii: 44, proteine: 0.3, carbohidrati: 6.8, grasimi: 1.5, category: "ovaz" },
+  { name: "Lapte de ovaz Ideal", calorii: 52.5, proteine: 1, carbohidrati: 6.5, grasimi: 2.5, category: "ovaz" },
+  { name: "Lapte de ovaz - Avoine Carrefour", calorii: 45, proteine: 0.9, carbohidrati: 6.1, grasimi: 1.5, category: "ovaz" },
+  { name: "Lapte ovăz cu chia - Joya", calorii: 47, proteine: 0.7, carbohidrati: 7.8, grasimi: 1.3, category: "ovaz" },
+  { name: "Lapte de ovaz Barista Ecomil", calorii: 79, proteine: 1.5, carbohidrati: 9.8, grasimi: 3.4, category: "ovaz" },
+  { name: "Lapte de ovăz cu vanilie - DM", calorii: 40, proteine: 0.7, carbohidrati: 6, grasimi: 1.4, category: "ovaz" },
+  { name: "Lapte ovaz Bio Vemondo", calorii: 37, proteine: 0.4, carbohidrati: 5.6, grasimi: 1.2, category: "ovaz" },
+  { name: "Lapte Vegetal din ovaz - NATRUE", calorii: 46, proteine: 1.4, carbohidrati: 8.1, grasimi: 0.8, category: "ovaz" },
+  { name: "Lapte de ovaz Minor Figures", calorii: 48, proteine: 0.2, carbohidrati: 9.5, grasimi: 2.1, category: "ovaz" },
+  { name: "Lapte de ovăz Barista - dmBio", calorii: 56, proteine: 0.8, carbohidrati: 8.4, grasimi: 2.1, category: "ovaz" },
+  { name: "Lapte de ovaz neindulcit Alpro", calorii: 40, proteine: 0.2, carbohidrati: 5.8, grasimi: 1.5, category: "ovaz" },
+  { name: "Lapte ovăz - Take it veggie", calorii: 41.2, proteine: 0.7, carbohidrati: 7.8, grasimi: 0.8, category: "ovaz" },
+  { name: "Lapte ovaz barista Oat Molk", calorii: 59, proteine: 0.9, carbohidrati: 6.1, grasimi: 3.3, category: "ovaz" },
+  { name: "Lapte ovaz - Riso Scotti Original", calorii: 53, proteine: 0.4, carbohidrati: 9.3, grasimi: 1.4, category: "ovaz" },
+  { name: "Lapte de ovaz fara zahar - Joya", calorii: 25, proteine: 0.4, carbohidrati: 4, grasimi: 0.8, category: "ovaz" },
+  { name: "Lapte vegetal din ovăz Carpos-Olympus", calorii: 54, proteine: 1.2, carbohidrati: 8, grasimi: 1.5, category: "ovaz" },
+  { name: "Lapte barista ovăz și soia DM", calorii: 55, proteine: 1.2, carbohidrati: 8.4, grasimi: 1.8, category: "ovaz" },
+  { name: "Lapte ovaz fara zahar - dmBio", calorii: 42, proteine: 0.8, carbohidrati: 5.6, grasimi: 1.8, category: "ovaz" },
+  { name: "Ovaz cu lapte de migdale, alune de pădure și papaya - Ohvaz", calorii: 179, proteine: 3.89, carbohidrati: 25.43, grasimi: 5.42, category: "ovaz" },
+  { name: "Lapte de cocos", calorii: 229, proteine: 2.3, carbohidrati: 6, grasimi: 24, category: "cocos" },
+  { name: "Lapte de cocos - Biomarket", calorii: 170, proteine: 1.6, carbohidrati: 2.6, grasimi: 17, category: "cocos" },
+  { name: "Lapte de cocos Rapunzel", calorii: 194, proteine: 1.7, carbohidrati: 4.1, grasimi: 18, category: "cocos" },
+  { name: "Lapte de cocos Vitasia", calorii: 210, proteine: 2.2, carbohidrati: 3, grasimi: 21, category: "cocos" },
+  { name: "Lapte de cocos - Oxfam", calorii: 170, proteine: 1.2, carbohidrati: 3, grasimi: 17, category: "cocos" },
+  { name: "Lapte de cocos Aldi", calorii: 80.1, proteine: 0.7, carbohidrati: 2, grasimi: 7.7, category: "cocos" },
+  { name: "Lapte cocos Granarolo", calorii: 41, proteine: 0.3, carbohidrati: 2.1, grasimi: 3.4, category: "cocos" },
+  { name: "Lapte de cocos Freshona", calorii: 201, proteine: 2.3, carbohidrati: 2.2, grasimi: 20.1, category: "cocos" },
+  { name: "Lapte de cocos Auchan", calorii: 189, proteine: 1, carbohidrati: 2.2, grasimi: 19, category: "cocos" },
+  { name: "Lapte de cocos Cora", calorii: 197, proteine: 2, carbohidrati: 4.5, grasimi: 19, category: "cocos" },
+  { name: "Lapte cocos Vitasia", calorii: 210, proteine: 2.2, carbohidrati: 3, grasimi: 21, category: "cocos" },
+  { name: "Lapte de cocos Shan'shi", calorii: 212, proteine: 2.1, carbohidrati: 5.2, grasimi: 20.4, category: "cocos" },
+  { name: "Lapte de cocos - Muller", calorii: 20, proteine: 0.1, carbohidrati: 2.4, grasimi: 1.1, category: "cocos" },
+  { name: "Lapte de cocos - Koko", calorii: 28, proteine: 0.3, carbohidrati: 2.4, grasimi: 1.9, category: "cocos" },
+  { name: "Lapte de cocos Sincere", calorii: 160, proteine: 1.5, carbohidrati: 1, grasimi: 17, category: "cocos" },
+  { name: "Lapte de cocos - Ampawa", calorii: 191, proteine: 1, carbohidrati: 4, grasimi: 19, category: "cocos" },
+  { name: "Lapte de cocos - coconut milk - Siam", calorii: 174, proteine: 0.6, carbohidrati: 2.9, grasimi: 18, category: "cocos" },
+  { name: "Lapte de cocos neindulcit - Alpro Coconut", calorii: 20, proteine: 0.1, carbohidrati: 2.7, grasimi: 0.9, category: "cocos" },
+  { name: "Lapte praf cocos - Topnatur", calorii: 532, proteine: 0.5, carbohidrati: 61, grasimi: 32, category: "cocos" },
+  { name: "Lapte vegetal Cocos - Auchan", calorii: 21, proteine: 0.5, carbohidrati: 3, grasimi: 1, category: "cocos" },
+  { name: "Lapte de cocos Tao Tao", calorii: 165, proteine: 0, carbohidrati: 2.9, grasimi: 17, category: "cocos" },
+  { name: "Lapte cocos natur dmBio", calorii: 22, proteine: 0.09, carbohidrati: 3, grasimi: 1, category: "cocos" },
+  { name: "Lapte de cocos si migdale Alpro", calorii: 24, proteine: 0.3, carbohidrati: 2.5, grasimi: 1.3, category: "cocos" },
+  { name: "Lapte de cocos neindulcit - Alpro", calorii: 14, proteine: 0.1, carbohidrati: 0, grasimi: 1.2, category: "cocos" },
+  { name: "Lapte de cocos light Vitasia", calorii: 131, proteine: 1.6, carbohidrati: 1.9, grasimi: 13, category: "cocos" },
+  { name: "Lapte de cocos - Rude Health", calorii: 53, proteine: 0.1, carbohidrati: 10.4, grasimi: 1.2, category: "cocos" },
+  { name: "Lapte cocos si orez Delhaize", calorii: 45, proteine: 0.2, carbohidrati: 7.6, grasimi: 1.4, category: "cocos" },
+  { name: "Lapte de cocos Biona Organic", calorii: 181, proteine: 1.4, carbohidrati: 3.4, grasimi: 18, category: "cocos" },
+  { name: "Lapte de cocos cu ciocolata Alpro", calorii: 40, proteine: 0.4, carbohidrati: 6.8, grasimi: 1.1, category: "cocos" },
+  { name: "Lapte de cocos cu orez Joya", calorii: 64, proteine: 0.3, carbohidrati: 11.4, grasimi: 1.8, category: "cocos" },
+  { name: "Lapte de cocos creamy Kaufland", calorii: 201, proteine: 2.3, carbohidrati: 2.2, grasimi: 20, category: "cocos" },
+  { name: "Lapte cocos Thai Delhaze", calorii: 180, proteine: 1.8, carbohidrati: 3, grasimi: 17.8, category: "cocos" },
+  { name: "Lapte de cocos Leader Price", calorii: 243, proteine: 2, carbohidrati: 2.6, grasimi: 25, category: "cocos" },
+  { name: "Lapte de cocos Blue Dragon", calorii: 155, proteine: 1.4, carbohidrati: 3.4, grasimi: 15, category: "cocos" },
+  { name: "Lapte de cocos bio Rinatura", calorii: 165, proteine: 1.5, carbohidrati: 1.5, grasimi: 17, category: "cocos" },
+  { name: "Lapte de Cocos Eco - Clearspring", calorii: 181.2, proteine: 1.4, carbohidrati: 3.4, grasimi: 18, category: "cocos" },
+  { name: "Lapte de cocos Vitasia Lidl", calorii: 216, proteine: 2.2, carbohidrati: 3, grasimi: 21, category: "cocos" },
+  { name: "Lapte cocos Vitasia Lidl", calorii: 210, proteine: 2.2, carbohidrati: 3, grasimi: 21, category: "cocos" },
+  { name: "Lapte de cocos si orez Alpro", calorii: 20, proteine: 0.1, carbohidrati: 2.7, grasimi: 0.9, category: "cocos" },
+  { name: "Lapte de cocos - K-Classic Asia", calorii: 128, proteine: 1.1, carbohidrati: 1.4, grasimi: 13, category: "cocos" },
+  { name: "Lapte de cocos Shan Shi", calorii: 219, proteine: 1.9, carbohidrati: 3.8, grasimi: 22, category: "cocos" },
+  { name: "Lapte de cocos 60% conținut de nucă de cocos - dmBio", calorii: 220, proteine: 1.7, carbohidrati: 3.4, grasimi: 22, category: "cocos" },
+  { name: "Lapte de cocos - Coconul Milk - Aroy-D", calorii: 185, proteine: 1.6, carbohidrati: 2, grasimi: 19, category: "cocos" },
+  { name: "Lapte de cocos ecologic - Coconut Milk - Biona", calorii: 181, proteine: 1.4, carbohidrati: 3.4, grasimi: 18, category: "cocos" },
+  { name: "Lapte de cocos și orez - Isola Bio", calorii: 60, proteine: 0.5, carbohidrati: 13, grasimi: 0.8, category: "cocos" },
+  { name: "Lapte de cocos 17% BIO PLANET", calorii: 160, proteine: 1, carbohidrati: 0.8, grasimi: 17, category: "cocos" },
+  { name: "Înghețată de ciocolată din lapte de cocos Gelatelli", calorii: 204, proteine: 1.4, carbohidrati: 17.5, grasimi: 13.8, category: "cocos" },
+  { name: "Lapte de cocos Lite Thai Choice", calorii: 67, proteine: 0.8, carbohidrati: 3.3, grasimi: 5.7, category: "cocos" },
+  { name: "Lapte cu aroma de fistic si cocos Muller", calorii: 76, proteine: 3.3, carbohidrati: 12.5, grasimi: 1.4, category: "cocos" },
+  { name: "Lapte de cocos Joya ohne zucker", calorii: 18.9, proteine: 0.1, carbohidrati: 2.6, grasimi: 0.9, category: "cocos" },
+  { name: "Lapte Vegetal din Orez cu Cocos - Natrue", calorii: 60, proteine: 0.3, carbohidrati: 11.7, grasimi: 1.3, category: "cocos" },
+  { name: "Lapte cocos si orez - Nature's Promise", calorii: 49, proteine: 0.5, carbohidrati: 9, grasimi: 1.2, category: "cocos" },
+  { name: "Lapte de nuca de cocos - Delhaize (DLL)", calorii: 182, proteine: 1.8, carbohidrati: 3, grasimi: 18, category: "cocos" },
+  { name: "Lapte de cocos light - Freshona (Lidl)", calorii: 144, proteine: 1.2, carbohidrati: 3, grasimi: 13.9, category: "cocos" },
+  { name: "Lapte de cocos fara zahar - Muller", calorii: 11, proteine: 0.1, carbohidrati: 0.1, grasimi: 1.1, category: "cocos" },
+  { name: "Lapte de cocos condensat îndulcit Ecologic/Bio Cocomi", calorii: 489.8, proteine: 2.7, carbohidrati: 50, grasimi: 31, category: "cocos" },
+  { name: "Lapte de cocos - Bio organic - The Bridge", calorii: 24, proteine: 0.5, carbohidrati: 1.3, grasimi: 1.8, category: "cocos" },
+  { name: "Lapte de cocos fara zahar Isola Bio", calorii: 22, proteine: 0.2, carbohidrati: 1.7, grasimi: 1.5, category: "cocos" },
+  { name: "Lapte de cocos - Kokosmilch light - Shan’ Shi", calorii: 68, proteine: 0, carbohidrati: 1.7, grasimi: 6.7, category: "cocos" },
+  { name: "Lapte de cocos bio Biothemis Mega Image", calorii: 171, proteine: 1.3, carbohidrati: 1.8, grasimi: 17.6, category: "cocos" },
+  { name: "Lapte de cocos cu migdale cu calciu și migdale Valsoia", calorii: 23, proteine: 1.3, carbohidrati: 2.6, grasimi: 1.3, category: "cocos" },
+  { name: "Lapte de cocos Alpro Barista for Professionals", calorii: 33, proteine: 1.5, carbohidrati: 3.3, grasimi: 1.4, category: "cocos" },
+  { name: "Lapte vegetal de cocos - Take it Veggie", calorii: 20, proteine: 0.5, carbohidrati: 2.8, grasimi: 0.9, category: "cocos" },
+  { name: "Lapte de orez myBIO", calorii: 80, proteine: 0.5, carbohidrati: 16, grasimi: 1.5, category: "orez" },
+  { name: "Lapte de orez Adez", calorii: 45, proteine: 0, carbohidrati: 8.9, grasimi: 1, category: "orez" },
+  { name: "Lapte de orez Naturli", calorii: 54, proteine: 0.1, carbohidrati: 10, grasimi: 1.1, category: "orez" },
+  { name: "Lapte de orez - Vemondo", calorii: 59, proteine: 0.2, carbohidrati: 12.2, grasimi: 0.9, category: "orez" },
+  { name: "Lapte cu orez - Carrefour", calorii: 57, proteine: 0, carbohidrati: 11, grasimi: 1.3, category: "orez" },
+  { name: "Lapte cocos si orez Delhaize", calorii: 45, proteine: 0.2, carbohidrati: 7.6, grasimi: 1.4, category: "orez" },
+  { name: "Lapte migdale și orez Joya", calorii: 29, proteine: 0.6, carbohidrati: 3.4, grasimi: 1.4, category: "orez" },
+  { name: "Muller Orez cu lapte in curmale", calorii: 107, proteine: 3.6, carbohidrati: 17.3, grasimi: 2.5, category: "orez" },
+  { name: "Lapte de cocos cu orez Joya", calorii: 64, proteine: 0.3, carbohidrati: 11.4, grasimi: 1.8, category: "orez" },
+  { name: "Lapte de orez si migdale Cereal", calorii: 67, proteine: 0.4, carbohidrati: 12, grasimi: 1.7, category: "orez" },
+  { name: "Lapte orez si migdale Joya", calorii: 73.3, proteine: 0.8, carbohidrati: 12.5, grasimi: 0, category: "orez" },
+  { name: "Lapte de cocos si orez Alpro", calorii: 20, proteine: 0.1, carbohidrati: 2.7, grasimi: 0.9, category: "orez" },
+  { name: "Lapte din orez bio - Auchan", calorii: 57, proteine: 0.5, carbohidrati: 11, grasimi: 1.3, category: "orez" },
+  { name: "Lapte de orez Bio Vegan - Edeka", calorii: 51, proteine: 0.1, carbohidrati: 9.6, grasimi: 1.3, category: "orez" },
+  { name: "Lapte din hrișcă și orez bio - Carrefour", calorii: 56, proteine: 0.6, carbohidrati: 10, grasimi: 1.5, category: "orez" },
+  { name: "Lapte de cocos și orez - Isola Bio", calorii: 60, proteine: 0.5, carbohidrati: 13, grasimi: 0.8, category: "orez" },
+  { name: "Lapte de soia si orez Sole Natura", calorii: 50, proteine: 2.4, carbohidrati: 4.9, grasimi: 2.3, category: "orez" },
+  { name: "Lapte Vegetal din Orez cu Cocos - Natrue", calorii: 60, proteine: 0.3, carbohidrati: 11.7, grasimi: 1.3, category: "orez" },
+  { name: "Lapte de orez Bio - Nature's Promise", calorii: 61, proteine: 0, carbohidrati: 12, grasimi: 1.4, category: "orez" },
+  { name: "Lapte cocos si orez - Nature's Promise", calorii: 49, proteine: 0.5, carbohidrati: 9, grasimi: 1.2, category: "orez" },
+  { name: "Lapte Orez Quinoa Bio - Riso Scotti", calorii: 59, proteine: 0.5, carbohidrati: 12, grasimi: 1, category: "orez" },
+  { name: "Lapte de orez Riso Vital Rice Drink", calorii: 61.3, proteine: 0.2, carbohidrati: 13.1, grasimi: 0.9, category: "orez" },
+  { name: "Lapte de orez cu aroma subtila de vanilie Alpro", calorii: 60, proteine: 0.1, carbohidrati: 12.2, grasimi: 1.3, category: "orez" },
+  { name: "Lapte vegan de cocos cu orez - Vega Milk", calorii: 57, proteine: 1, carbohidrati: 10, grasimi: 1.5, category: "orez" },
+  { name: "Lapte Vegetal din Orez cu Calciu Ecologic/Bio - MYBIO", calorii: 60.8, proteine: 0.5, carbohidrati: 12, grasimi: 1.2, category: "orez" },
+  { name: "Lapte de Orez fara Gluten si Lactoza Ecologica/Bio - ALLOS", calorii: 57, proteine: 0, carbohidrati: 12, grasimi: 0.12, category: "orez" },
+  { name: "Lapte de Orez si Cocos Fara Gluten si Lactoza Ecologica/Bio - ALLOS", calorii: 59.2, proteine: 0, carbohidrati: 13, grasimi: 0.8, category: "orez" },
+  { name: "Lapte de migdale - Delhaize", calorii: 24, proteine: 0.3, carbohidrati: 3, grasimi: 1.1, category: "migdale" },
+  { name: "Lapte de migdale - Auchan", calorii: 24, proteine: 0.5, carbohidrati: 3, grasimi: 1.1, category: "migdale" },
+  { name: "Lapte de migdale Naturli", calorii: 50, proteine: 1.1, carbohidrati: 4.9, grasimi: 2.7, category: "migdale" },
+  { name: "Lapte migdale Monsoy", calorii: 60, proteine: 0.8, carbohidrati: 9.5, grasimi: 2.1, category: "migdale" },
+  { name: "Lapte de migdale Scotti", calorii: 73, proteine: 0.7, carbohidrati: 12.6, grasimi: 2.2, category: "migdale" },
+  { name: "Lapte de migdale Alpro", calorii: 13, proteine: 0.4, carbohidrati: 0, grasimi: 1.1, category: "migdale" },
+  { name: "Lapte migdale - Mandorla", calorii: 42, proteine: 1.4, carbohidrati: 0.3, grasimi: 3.8, category: "migdale" },
+  { name: "Lapte de Migdale - Carrefour", calorii: 37, proteine: 0.6, carbohidrati: 3.3, grasimi: 2.4, category: "migdale" },
+  { name: "Lapte de cocos cu migdale cu calciu și migdale Valsoia", calorii: 23, proteine: 1.3, carbohidrati: 2.6, grasimi: 1.3, category: "migdale" },
+  { name: "Lapte de cocos si migdale Alpro", calorii: 24, proteine: 0.3, carbohidrati: 2.5, grasimi: 1.3, category: "migdale" },
+  { name: "Lapte de migdale - Alpro Original", calorii: 24, proteine: 0.5, carbohidrati: 2.7, grasimi: 1.1, category: "migdale" },
+  { name: "Lapte migdale și orez Joya", calorii: 29, proteine: 0.6, carbohidrati: 3.4, grasimi: 1.4, category: "migdale" },
+  { name: "Lapte de migdale si soia Joya", calorii: 44, proteine: 3.2, carbohidrati: 0.7, grasimi: 3, category: "migdale" },
+  { name: "Lapte de orez si migdale Cereal", calorii: 67, proteine: 0.4, carbohidrati: 12, grasimi: 1.7, category: "migdale" },
+  { name: "Lapte orez si migdale Joya", calorii: 73.3, proteine: 0.8, carbohidrati: 12.5, grasimi: 0, category: "migdale" },
+  { name: "Lapte de migdale Bio Carrefour", calorii: 26, proteine: 0.7, carbohidrati: 1.7, grasimi: 1.7, category: "migdale" },
+  { name: "Lapte migdale organic Kaufland", calorii: 28.3, proteine: 0.5, carbohidrati: 4.1, grasimi: 1.1, category: "migdale" },
+  { name: "Lapte de migdale - Metro Chef", calorii: 18, proteine: 0.6, carbohidrati: 0, grasimi: 1.7, category: "migdale" },
+  { name: "Lapte de migdale - Isola Bio", calorii: 27, proteine: 0.8, carbohidrati: 0, grasimi: 2.5, category: "migdale" },
+  { name: "Lapte de migdale cu proteine Olympus", calorii: 42.2, proteine: 3.2, carbohidrati: 2.9, grasimi: 1.7, category: "migdale" },
+  { name: "Lapte soia si migdale Alpro", calorii: 24, proteine: 1.1, carbohidrati: 3, grasimi: 0.5, category: "migdale" },
+  { name: "Lapte de migdale neindulcit Alpro", calorii: 15, proteine: 0.5, carbohidrati: 0, grasimi: 1.1, category: "migdale" },
+  { name: "Lapte de migdale BIO - The Bridge", calorii: 70, proteine: 1.5, carbohidrati: 5.1, grasimi: 4.6, category: "migdale" },
+  { name: "Lapte de migdale fara zahar Mercadona", calorii: 16, proteine: 0.5, carbohidrati: 0, grasimi: 1.5, category: "migdale" },
+  { name: "Lapte migdale almond barista - Joya", calorii: 20, proteine: 0.7, carbohidrati: 1, grasimi: 1.4, category: "migdale" },
+  { name: "Lapte de migdale neindulcit Carpos - Olympus", calorii: 24, proteine: 0.7, carbohidrati: 0.45, grasimi: 1.7, category: "migdale" },
+  { name: "Lapte migdale cu cacao Carpos - Olympus", calorii: 50.9, proteine: 0.7, carbohidrati: 7.4, grasimi: 1.7, category: "migdale" },
+  { name: "Lapte de migdale si ciocolata neagra Alpro", calorii: 47, proteine: 0.8, carbohidrati: 7.6, grasimi: 1.3, category: "migdale" },
+  { name: "Lapte de migdale organic - Rude Health", calorii: 56, proteine: 0.2, carbohidrati: 10.5, grasimi: 1.49, category: "migdale" },
+  { name: "Lapte Vegetal din Migdale Neindulcit - Natrue", calorii: 24, proteine: 0.7, carbohidrati: 0.2, grasimi: 2.2, category: "migdale" },
+  { name: "Lapte de migdale fara zahar - Lima", calorii: 24, proteine: 1, carbohidrati: 0, grasimi: 2.1, category: "migdale" },
+  { name: "Lapte de migdale neîndulcit bio - Scotti", calorii: 26, proteine: 0.9, carbohidrati: 1, grasimi: 2.4, category: "migdale" },
+  { name: "Lapte de migdale - Scotti Riso Vital", calorii: 65, proteine: 0.7, carbohidrati: 10.6, grasimi: 2.1, category: "migdale" },
+  { name: "Lapte de migdale Nature's Promise Bio", calorii: 15, proteine: 0.5, carbohidrati: 0, grasimi: 1.4, category: "migdale" },
+  { name: "Lapte de migdale fara zahar - Carrefour", calorii: 26, proteine: 0.7, carbohidrati: 1.7, grasimi: 1.7, category: "migdale" },
+  { name: "Lapte de migdale organic Bio - Terraepane", calorii: 73, proteine: 0.9, carbohidrati: 10.9, grasimi: 2.7, category: "migdale" },
+  { name: "Lapte de migdale cu aromă de vanilie Alpro", calorii: 30, proteine: 0.4, carbohidrati: 3.8, grasimi: 1.1, category: "migdale" },
+  { name: "Lapte migdale Barista - Rude Health", calorii: 63, proteine: 1.1, carbohidrati: 8.8, grasimi: 2.4, category: "migdale" },
+  { name: "Lapte proteic migdale sugar free - Ecomil", calorii: 37, proteine: 2.1, carbohidrati: 1.5, grasimi: 2.4, category: "migdale" },
+  { name: "Lapte migdale fara zahar Acti Leaf", calorii: 20.7, proteine: 0.5, carbohidrati: 1.3, grasimi: 1.5, category: "migdale" },
+  { name: "Lapte migdale organic - Take It Veggie", calorii: 14, proteine: 0.5, carbohidrati: 0.5, grasimi: 1.2, category: "migdale" },
+  { name: "Lapte fara zahar bio de migdale Vemondo", calorii: 14, proteine: 0.5, carbohidrati: 0, grasimi: 1.2, category: "migdale" },
+  { name: "Lapte migdale cu calciu - fara zahar - Joya", calorii: 14, proteine: 0.4, carbohidrati: 0.1, grasimi: 1.2, category: "migdale" },
+  { name: "Lapte de migdale (Organic Almond Drink) indulcit - Vemondo (Lidl)", calorii: 24, proteine: 0.5, carbohidrati: 2.8, grasimi: 1.2, category: "migdale" },
+  { name: "Lapte migdale Carpos original fara gluten și lactoză - Olympus", calorii: 30, proteine: 0.7, carbohidrati: 2.8, grasimi: 1.5, category: "migdale" },
+  { name: "Lapte de midgale Bio, 100% vegetal - Scotti", calorii: 24, proteine: 0.5, carbohidrati: 3, grasimi: 1.2, category: "migdale" }
+];
+
+
+    // Define chart dimensions and margins.
+    const margin = { top: 20, right: 40, bottom: 40, left: 40 },
+          svgWidth = 200,
+          svgHeight = 300;
+
+    // Define nutrient axes names and corresponding keys.
+    const axisNames = ["Proteine", "Carbohidrati", "Grasimi"];
+    const nutrientKeys = ["proteine", "carbohidrati", "grasimi"];
+
+    // Y scale: maps nutrient values (0–7) to pixel positions.
+    const yScale = d3.scaleLinear()
+      .domain([0, 20])
+      .range([svgHeight - margin.bottom, margin.top]);
+
+    // X positions for the three vertical axes.
+    const xPositions = [
+      margin.left,
+      svgWidth / 2,
+      svgWidth - margin.right
+    ];
+
+    // Color mapping for product categories.
+    const categoryColors = {
+      ovaz: "#4595FF",
+      soia: "#0FB661",
+      orez: "#FFDA6B",
+      cocos: "#FFFFFF",
+      migdale: "#FF605F"
+    };
+
+    // Global filter values.
+    let selectedCategory = "toate";
+    let filterProteine = 0;
+    let filterCarbo = 0;
+    let filterGrasimi = 0;
+
+    // Select the tooltip and charts container.
+    const tooltip = d3.select("#tooltip");
+    const chartsContainer = d3.select("#charts");
+
+    // Function to update/redraw charts based on filters.
+    function updateCharts() {
+      // Clear existing charts.
+      chartsContainer.html("");
+
+      // Filter products.
+      const filteredProducts = products.filter(product => {
+        const categoryMatch = (selectedCategory === "toate") || (product.category === selectedCategory);
+        const proteineMatch = product.proteine >= filterProteine;
+        const carboMatch = product.carbohidrati >= filterCarbo;
+        const grasimiMatch = product.grasimi >= filterGrasimi;
+        return categoryMatch && proteineMatch && carboMatch && grasimiMatch;
+      });
+
+      // For each matching product, create a chart.
+      filteredProducts.forEach(product => {
+        // Create a container for the chart.
+        const container = chartsContainer.append("div")
+          .attr("class", "chart-container");
+        container.append("h3")
+          .text(`${product.name} - ${product.calorii} calorii`);
+
+        // Append an SVG with background set to #B1D5E2.
+        const svg = container.append("svg")
+          .attr("width", svgWidth)
+          .attr("height", svgHeight)
+          .style("background", "#B1D5E2");
+
+        // Determine color based on product category.
+        const color = categoryColors[product.category] || "#000000";
+
+        // Draw the vertical axes and axis labels.
+        xPositions.forEach((x, i) => {
+          svg.append("line")
+            .attr("x1", x)
+            .attr("y1", margin.top)
+            .attr("x2", x)
+            .attr("y2", svgHeight - margin.bottom)
+            .attr("class", "axis-line");
+
+          // Axis name at bottom.
+          svg.append("text")
+            .attr("x", x)
+            .attr("y", svgHeight - margin.bottom + 15)
+            .attr("class", "axis-label")
+            .text(axisNames[i]);
+        });
+
+        // Add min and max labels to each vertical axis.
+        xPositions.forEach(x => {
+          svg.append("text")
+            .attr("x", x - 10)
+            .attr("y", margin.top)
+            .attr("class", "axis-max")
+            .text("20");
+          svg.append("text")
+            .attr("x", x - 10)
+            .attr("y", svgHeight - margin.bottom)
+            .attr("class", "axis-min")
+            .text("0");
+        });
+
+        // Map nutrient values to points.
+        const nutrientValues = nutrientKeys.map(key => product[key]);
+        const points = nutrientValues.map((val, i) => ({
+          x: xPositions[i],
+          y: yScale(val),
+          nutrient: axisNames[i],
+          value: val
+        }));
+
+        // Draw a closed path (triangle) connecting the nutrient points.
+        svg.append("path")
+          .datum(points)
+          .attr("class", "data-line")
+          .attr("d", d3.line()
+            .x(d => d.x)
+            .y(d => d.y)
+            .curve(d3.curveLinearClosed)
+          )
+          .attr("stroke", color)
+          .attr("fill", "none");
+
+        // Plot circles for each nutrient point.
+        svg.selectAll("circle")
+          .data(points)
+          .enter()
+          .append("circle")
+          .attr("class", "data-point")
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
+          .attr("r", 4)
+          .attr("fill", color)
+          .on("mouseover", (event, d) => {
+            tooltip.style("visibility", "visible")
+              .html(`<strong>${d.nutrient}</strong>: ${d.value}g`);
+          })
+          .on("mousemove", (event) => {
+            tooltip.style("top", (event.pageY - 10) + "px")
+                   .style("left", (event.pageX + 10) + "px");
+          })
+          .on("mouseout", () => {
+            tooltip.style("visibility", "hidden");
+          });
+      });
+    }
+
+    // Event listeners for filter buttons.
+    d3.selectAll(".filter-btn")
+      .on("click", function() {
+        selectedCategory = d3.select(this).attr("data-category");
+        d3.selectAll(".filter-btn").classed("active", false);
+        d3.select(this).classed("active", true);
+        updateCharts();
+      });
+
+    // Event listeners for sliders.
+    d3.select("#slider-proteine")
+      .on("input", function() {
+        filterProteine = +this.value;
+        d3.select("#value-proteine").text(this.value);
+        updateCharts();
+      });
+    d3.select("#slider-carbo")
+      .on("input", function() {
+        filterCarbo = +this.value;
+        d3.select("#value-carbo").text(this.value);
+        updateCharts();
+      });
+    d3.select("#slider-grasimi")
+      .on("input", function() {
+        filterGrasimi = +this.value;
+        d3.select("#value-grasimi").text(this.value);
+        updateCharts();
+      });
+
+    // Initialize with "toate" category.
+    updateCharts();
+    d3.select(".filter-btn[data-category='toate']").classed("active", true);
+  </script>
+
+  <!-- ======= Cow GIF at Bottom ======= -->
+  <div id="cowContainer">
+    <img src="cow.gif" alt="Animated Cow">
+  </div>
+</body>
+</html>
