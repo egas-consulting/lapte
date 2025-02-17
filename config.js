@@ -10,11 +10,11 @@ var config = {
     theme: 'light',
     use3dTerrain: false, //set true for enabling 3D maps.
     auto: false,
-    title: '<p style="text-align: center; font-weight: 400; color: #006576; font-size: 1.4rem;"> Alimentație modernă</p>',
-    subtitle: '<span style="font-family: \'Roboto\'; color: #006576; font-size: 2.7rem; font-weight: 900; display: inline-flex; align-items: center; flex-wrap: wrap;"> Cum a ajuns laptele <img src="plant.png" alt="Plant icon" style="height: 0.7em; width: auto; margin: 0 4px;">vegetal vedetă</span>',
+    title: '<p style="text-align: center; font-weight: 400; color: #328429; font-size: 1.4rem;"> Renașterea laptelui:<img src="plant.png" alt="Plant icon" style="height: 0.7em; width: auto; margin: 0 4px;"></p>',
+    subtitle: '<span style="font-family: \'Roboto\'; color: #328429; font-size: 2.5rem; font-weight: 900; display: inline-flex; align-items: center; flex-wrap: wrap;"> Cum au devenit alternativele vegetale noua vedetă pe piața din România</span>',
 
-    byline: '<a href="https://panorama.ro/author/panorama/" target="_blank" style="color:#006576;">Edit Gyenge</a> <p> <img src="./scroll.png"> </p> <p> scroll </p> ',
-    footer: '<br> 14 februarie 2025 <br> <a href="https://panorama.ro/author/alina-matis/" target="_blank">Editor: Alina Mărculescu Matiș</a> ',
+    byline: '<a href="https://panorama.ro/author/panorama/" target="_blank" style="color:#328429;">Edit Gyenge</a> <p> <img src="./scroll.png"> </p> <p> scroll </p> ',
+    footer: '<br> 14 februarie 2025 <br> <a href="https://panorama.ro/author/andrei-luca-popescu/" target="_blank">Editor: Andrei Luca Popescu</a> ',
     chapters: [
         {
             id: 'cap1.1',
@@ -63,7 +63,43 @@ var config = {
             hidden: false,
             title: '',
             image: '',
-            description: 'Folosit de sute de ani în bucătăria românească, laptele de vacă are rădăcini adânci în tradițiile pastorale ale poporului. De la comunitățile dacice, care consumau lactate sub diverse forme, până la influențele medievale aduse prin schimburile culturale cu imperiile vecine, produsele lactate au fost o constantă în alimentația românilor.',
+            description: 'Cu doar un deceniu în urmă, laptele vegetal era un produs considerat „exotic”, disponibil în special în magazinele naturiste și cunoscut mai mult de cei cu intoleranță la lactoză sau adepții dietelor vegane. Astăzi însă, cutii de lapte de soia, migdale, ovăz sau cocos sunt nelipsite de pe rafturile supermarketurilor și apar chiar și în micile magazine de cartier. ',
+            overlayImage: 'blank.png',
+            
+            location: {
+                center: [12.02595, 49.90885],
+                zoom: 15,
+                pitch: 60,
+                bearing: 0,
+            },
+            mapAnimation: 'jumpTo',
+            rotateAnimation: false,
+            callback: '',
+            onChapterEnter: [
+                // {
+                //     layer: 'layer-name',
+                //     opacity: 1,
+                //     duration: 5000
+                // }
+            ],
+            onChapterExit: [
+                // {
+                //     layer: 'layer-name',
+                //     opacity: 0
+                // }
+            ]
+        },
+
+        {
+            id: 'cap1.1',
+            daysAgo: 430,
+            showTimeline: false,
+            alignment: 'center',
+            horizontalScroll: false,
+            hidden: false,
+            title: '',
+            image: '',
+            description: 'Care sunt motivele din spatele acestei ascensiuni spectaculoase și ce ne spun datele despre schimbările de comportament ale consumatorilor români? Am adunat informații, statistici și vizualizări interactive pentru a pune sub lupă drumul laptelui vegetal către popularitatea de azi.',
             overlayImage: 'blank.png',
             
             location: {
@@ -101,9 +137,57 @@ var config = {
             timelineImage: '', 
             alignment: 'center',
             hidden: false,
-            title: '', // Consider adding a title if needed
+            title: 'De la păstorit la obiceiuri culinare', // Consider adding a title if needed
             image: '', // Specify if there's a header image for the chapter
-            description: 'Creșterea oilor este activitatea predominantă în păstorit, iar numărul de ovine este semnificativ. În schimb, la bovine, România se află printre ultimele locuri din Uniunea Europeană ca efectiv de animale.',
+            description: 'Românii au o îndelungată tradiție pastorală, iar laptele de vacă (și alte lactate) au fost de secole în centrul dietelor. Dacă ne uităm în trecut, rădăcinile acestui obicei culinar merg până la comunitățile dacice, care consumau lactate sub diverse forme, iar în Evul Mediu, rețetele bazate pe brânzeturi, smântână și lapte se îmbogățeau prin schimburile culturale cu imperiile vecine.',
+            overlayImage: '',
+            
+            location: {
+                center: [12.02595, 49.90885],
+                zoom: 1,
+                pitch: 60,
+                bearing: 0,
+            },
+            mapAnimation: 'jumpTo',
+            rotateAnimation: false,
+            callback: '',
+            onChapterEnter: [
+                // {
+                //     layer: 'layer-name',
+                //     opacity: 1,
+                //     duration: 5000
+                // }
+            ],
+            onChapterExit: [
+                // {
+                //     layer: 'layer-name',
+                //     opacity: 0
+                // }
+            ],
+            // chartData: {
+            //     labels: ['Ian 2022', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2023', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2024'],
+            //     label: 'Dataset 1',
+            //     dataPoints: [10.5, 8.6, null, null]
+            
+            // },
+            // yAxisMin: 0, // Customize minimum value for y-axis
+            // yAxisMax: 35,
+            // chartTitle: 'Rata șomajului', // Customize maximum value for y-axis
+        
+        
+        },
+
+        {
+            id: 'cap2.2',
+            daysAgo: 760,
+            showTimeline: false,
+            horizontalScroll: false,
+            timelineImage: '', 
+            alignment: 'center',
+            hidden: false,
+            title: 'O situație paradoxală', // Consider adding a title if needed
+            image: '', // Specify if there's a header image for the chapter
+            description: 'Deși păstoritul este și astăzi o activitate importantă în zonele montane (concentrată mai ales pe creșterea oilor), efectivele de bovine ale României rămân printre cele mai mici din Uniunea Europeană. În plus, producția agricolă de lapte a scăzut în ultimele două decenii, conform datelor Institutului Național de Statistică.',
             overlayImage: '',
             
             location: {
@@ -189,54 +273,7 @@ var config = {
         
         },
 
-        {
-            id: 'cap4',
-            daysAgo: 760, 
-            showTimeline: false,
-            horizontalScroll: false,
-            timelineImage: '', 
-            alignment: 'center',
-            hidden: false,
-            title: '', // Consider adding a title if needed
-            image: '', // Specify if there's a header image for the chapter
-            description: 'România produce lapte, însă nu suficient pentru a se afla în topul clasamentului Uniunii Europene. Mai mult, datele Institutului Național de Statistică arată că producția agricolă de lapte a înregistrat un declin în ultimele două decenii.',
-            overlayImage: '',
-            
-            location: {
-                center: [12.02595, 49.90885],
-                zoom: 1,
-                pitch: 60,
-                bearing: 0,
-            },
-            mapAnimation: 'jumpTo',
-            rotateAnimation: false,
-            callback: '',
-            onChapterEnter: [
-                // {
-                //     layer: 'layer-name',
-                //     opacity: 1,
-                //     duration: 5000
-                // }
-            ],
-            onChapterExit: [
-                // {
-                //     layer: 'layer-name',
-                //     opacity: 0
-                // }
-            ],
-            // chartData: {
-            //     labels: ['Ian 2022', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2023', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2024'],
-            //     label: 'Dataset 1',
-            //     dataPoints: [10.5, 8.6, null, null]
-            
-            // },
-            // yAxisMin: 0, // Customize minimum value for y-axis
-            // yAxisMax: 35,
-            // chartTitle: 'Rata șomajului', // Customize maximum value for y-axis
         
-        
-        },
-
         {
             id: 'cap5',
             daysAgo: 760, 
@@ -293,9 +330,57 @@ var config = {
             timelineImage: '', 
             alignment: 'center',
             hidden: false,
+            title: 'Schimbări de stil de viață și preocupări pentru sănătate', // Consider adding a title if needed
+            image: '', // Specify if there's a header image for the chapter
+            description: 'În ultimul deceniu, România a urmat trendul global al unei atenții sporite pentru alimentația sănătoasă. Dietele vegane, vegetariene sau flexitariene au căpătat avânt, la care se adaugă numărul tot mai mare de persoane cu intoleranță sau sensibilitate la lactoză. Un studiu realizat de Danone România arată că 39% dintre români consumă în prezent produse pe bază de plante, un procent semnificativ mai mare decât în urmă cu câțiva ani.',
+            overlayImage: '',
+            
+            location: {
+                center: [12.02595, 49.90885],
+                zoom: 1,
+                pitch: 60,
+                bearing: 0,
+            },
+            mapAnimation: 'jumpTo',
+            rotateAnimation: false,
+            callback: '',
+            onChapterEnter: [
+                // {
+                //     layer: 'layer-name',
+                //     opacity: 1,
+                //     duration: 5000
+                // }
+            ],
+            onChapterExit: [
+                // {
+                //     layer: 'layer-name',
+                //     opacity: 0
+                // }
+            ],
+            // chartData: {
+            //     labels: ['Ian 2022', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2023', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2024'],
+            //     label: 'Dataset 1',
+            //     dataPoints: [10.5, 8.6, null, null]
+            
+            // },
+            // yAxisMin: 0, // Customize minimum value for y-axis
+            // yAxisMax: 35,
+            // chartTitle: 'Rata șomajului', // Customize maximum value for y-axis
+        
+        
+        },
+
+        {
+            id: 'cap6.1',
+            daysAgo: 760, 
+            showTimeline: false,
+            horizontalScroll: false,
+            timelineImage: '', 
+            alignment: 'center',
+            hidden: false,
             title: '', // Consider adding a title if needed
             image: '', // Specify if there's a header image for the chapter
-            description: 'Consumul de lapte vegetal în România a început să crească vizibil în ultimul deceniu, pe fondul preocupărilor tot mai mari pentru un stil de viață sănătos, tendințelor de dietă vegană și intoleranței la lactoză. Conform cercetărilor realizate de Danone România, 39% dintre români consumă în prezent produse pe bază de plante.',
+            description: '<iframe src="https://flo.uri.sh/visualisation/21674228/embed" title="Interactive or visual content" class="flourish-embed-iframe" frameborder="0" scrolling="no" style="width:100%;height:600px;" sandbox="allow-same-origin allow-forms allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe><div style="width:100%!;margin-top:4px!important;text-align:right!important;"><a class="flourish-credit" href="https://public.flourish.studio/visualisation/21674228/?utm_source=embed&utm_campaign=visualisation/21674228" target="_top" style="text-decoration:none!important"><img alt="Made with Flourish" src="https://public.flourish.studio/resources/made_with_flourish.svg" style="width:105px!important;height:16px!important;border:none!important;margin:0!important;"> </a></div>',
             overlayImage: '',
             
             location: {
@@ -341,9 +426,9 @@ var config = {
             timelineImage: '', 
             alignment: 'center',
             hidden: false,
-            title: '', // Consider adding a title if needed
+            title: 'De la produs de nișă, la produse larg răspândite', // Consider adding a title if needed
             image: '', // Specify if there's a header image for the chapter
-            description: 'Inițial, laptele vegetal era considerat un produs de nișă, disponibil doar în magazinele naturiste, însă cererea a crescut constant, determinând marile lanțuri de supermarketuri să includă în ofertă o varietate de alternative – de la lapte de soia și migdale la ovăz, cocos și caju. Evoluția pieței a fost susținută și de creșterea numărului de producători locali, dar și de branduri internaționale care au intrat pe piață. În prezent, deși consumul de lapte vegetal este în continuare semnificativ mai mic decât cel de lapte de vacă, acesta continuă să se extindă, fiind preferat de un segment tot mai mare de consumatori preocupați de nutriție și sustenabilitate.',
+            description: 'Inițial, laptele vegetal era dificil de găsit și relativ scump. Însă, pe fondul cererii în creștere, marile rețele de retail au început să introducă game variate de lapte de soia, migdale, ovăz, cocos sau orez. Astfel, consumatorii au descoperit o multitudine de arome și opțiuni, iar competiția dintre branduri – atât cele locale, cât și internaționale – a favorizat o scădere a prețurilor și o accesibilitate mai mare.',
             overlayImage: '',
             
             location: {
@@ -389,9 +474,9 @@ var config = {
             timelineImage: '', 
             alignment: 'center',
             hidden: false,
-            title: '', // Consider adding a title if needed
+            title: 'Impactul asupra mediului – argumentul sustenabilității', // Consider adding a title if needed
             image: '', // Specify if there's a header image for the chapter
-            description: 'În dietele tipice din Uniunea Europeană, lactatele reprezintă peste un sfert din amprenta de carbon a alimentației, iar în unele cazuri chiar o treime. ',
+            description: 'Un alt factor major care impulsionează consumul de alternative vegetale este componenta de mediu. Conform mai multor studii la nivel european, produsele lactate pot reprezenta între un sfert și o treime din amprenta de carbon a dietei unei persoane. <br><b>Resurse și emisii asociate producției de lapte: <br>•Suprafața de teren utilizată:</b> Creșterea bovinelor necesită suprafețe întinse pentru pășuni și producția de furaje.<br>•<b>Apa consumată:</b> Producția unui litru de lapte de vacă poate avea nevoie de sute de litri de apă, atât pentru animale, cât și pentru irigarea furajelor.<br><b>•Emisiile de GES (gaze cu efect de seră):</b> Metanul provenit de la vaci are un puternic efect asupra încălzirii globale.',
             overlayImage: '',
             
             location: {
@@ -579,9 +664,9 @@ var config = {
             timelineImage: '', 
             alignment: 'center',
             hidden: false,
-            title: '', // Consider adding a title if needed
+            title: 'Profilul nutrițional – laptele de vacă vs. laptele vegetal', // Consider adding a title if needed
             image: '', // Specify if there's a header image for the chapter
-            description: 'Laptele de vacă și alternativele vegetale au profiluri nutriționale diferite, iar un litru de lapte vegetal nu echivalează cu unul de lapte de vacă. Lactatele sunt mai bogate în proteine, oferind 3,4 g/100 ml, față de doar 0,5 g în laptele de migdale, și conțin toți aminoacizii esențiali. În schimb, majoritatea laptelui vegetal este fortificat cu calciu, vitamina D și B12, reducând riscul de carențe nutriționale, mai ales pentru vegani.',
+            description: 'Deși alternativele vegetale câștigă teren în ceea ce privește sustenabilitatea și beneficiile pentru cei cu intoleranță la lactoză, diferențele nutriționale rămân semnificative:<br><b>•Proteine:</b> Laptele de vacă are aproximativ 3,4 g/100 ml, în timp ce laptele de migdale poate avea în jur de 0,5 g/100 ml.<br><B>•Aminoacizi esențiali:</B> Lactatele oferă un profil complet de aminoacizi, în timp ce laptele vegetal trebuie, în multe cazuri, combinat cu alte surse de proteine pentru acoperirea necesarului.<br><b>•Fortificare: </b>Majoritatea laptelui vegetal este îmbogățit cu calciu, vitamina D și B12, aspect crucial pentru vegetarieni și vegani. <br> Pentru a facilita comparația, <b>am creat un instrument interactiv (utilizând aplicația Eat&Track) care afișează profilul nutrițional al fiecărui tip de lapte vegetal disponibil pe piață. Poți selecta produsul și nutrientul care te interesează pentru a vedea diferențele.</b>',
             overlayImage: '',
             
             location: {
@@ -619,53 +704,6 @@ var config = {
         
         },
 
-        {
-            id: 'cap13',
-            daysAgo: 760, 
-            showTimeline: false,
-            horizontalScroll: false,
-            timelineImage: '', 
-            alignment: 'center',
-            hidden: false,
-            title: '', // Consider adding a title if needed
-            image: '', // Specify if there's a header image for the chapter
-            description: 'Pentru a facilita comparația între diferitele tipuri de lapte vegetal, am creat un instrument care prezintă profilul nutrițional al produselor disponibile pe piață, utilizând aplicația Eat&Track. Poți selecta și sorta caracteristicile relevante pentru a analiza compoziția fiecărui produs în funcție de nutrienți esențiali. Pentru fiecare categorie, am inclus peste 200 de produse diferite, oferind o imagine clară asupra valorilor nutriționale și a diferențelor dintre alternativele vegetale.',
-            overlayImage: '',
-            
-            location: {
-                center: [12.02595, 49.90885],
-                zoom: 1,
-                pitch: 60,
-                bearing: 0,
-            },
-            mapAnimation: 'jumpTo',
-            rotateAnimation: false,
-            callback: '',
-            onChapterEnter: [
-                // {
-                //     layer: 'layer-name',
-                //     opacity: 1,
-                //     duration: 5000
-                // }
-            ],
-            onChapterExit: [
-                // {
-                //     layer: 'layer-name',
-                //     opacity: 0
-                // }
-            ],
-            // chartData: {
-            //     labels: ['Ian 2022', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2023', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Noi', 'Dec', 'Ian 2024'],
-            //     label: 'Dataset 1',
-            //     dataPoints: [10.5, 8.6, null, null]
-            
-            // },
-            // yAxisMin: 0, // Customize minimum value for y-axis
-            // yAxisMax: 35,
-            // chartTitle: 'Rata șomajului', // Customize maximum value for y-axis
-        
-        
-        },
         
         {
             id: 'capCharts',
